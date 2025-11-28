@@ -1,7 +1,7 @@
 # =============================================
 # AI - Travel Destination Planner Agent
 # =============================================
-
+import matplotlib.pyplot as plt
 
 DESTINATIONS = [
     "Switzerland",
@@ -97,6 +97,41 @@ TRAVEL_TIPS = {
     ],
 }
 
+RULE_CATEGORY = {
+    "R1_budget_low_avoid_expensive": "Budget",
+    "R2_budget_allows_expensive": "Budget",
+
+    "R3_food_local_cuisine": "Food",
+
+    "R4_culture_history": "Activity",
+    "R5_adventure": "Activity",
+    "R6_shopping": "Activity",
+    "R7_nature": "Activity",
+    "R8_city_life": "Activity",
+
+    "R9_season_match": "Season",
+    "R10_season_weak": "Season",
+
+    "R11_low_traffic_avoid_high": "Traffic",
+    "R12_high_traffic_ok": "Traffic",
+
+    "R13_public_transport": "Transport",
+    "R14_walking_avoid_high_traffic": "Transport",
+
+    "R15_high_safety_avoid_mid": "Safety",
+    "R16_high_safety_prefers_very_safe": "Safety",
+    "R17_low_safety_concern": "Safety",
+
+    "R18_family_avoid_risky_adventure_city": "Companions",
+    "R19_solo_city_life": "Companions",
+
+    "R20_strong_recommendation": "Meta",
+    "R21_strong_not_recommendation": "Meta",
+    "R22_contradiction_detection": "Meta",
+    "R23_flag_inconsistency": "Meta",
+    "R24_neutral_default": "Meta",
+    "R25_final_recommendation": "Meta",
+}
 
 
 RULE_LOGIC = {
@@ -268,6 +303,26 @@ def add_once(lst, value):
     """
     if value not in lst:
         lst.append(value)
+
+def compute_rule_frequency(state):
+    counts = {}
+    for entry in state["trace"]:
+        # Each trace line starts with something like: "R4_culture_history: ..."
+        parts = entry.split(":", 1)
+        if len(parts) > 0:
+            rule = parts[0].strip()
+            if rule != "":
+                counts[rule] = counts.get(rule, 0) + 1
+    return counts
+
+def compute_category_contributions(state):
+    rule_freq = compute_rule_frequency(state)
+    cat_counts = {}
+    for rule, count in rule_freq.items():
+        category = RULE_CATEGORY.get(rule, "Other")
+        cat_counts[category] = cat_counts.get(category, 0) + count
+    return cat_counts
+
 
 
 # ===========================
@@ -504,9 +559,109 @@ def rule_neutral_and_final(state):
             msg = "R25_final_recommendation: final_recommendation(" + d + ")"
         state["trace"].append(msg)
 
+# ===========================
+# 6. Main Ploting
+# ===========================
+
+import matplotlib.pyplot as plt
+
+def visualize_statistics(state, scores):
+    destinations = DESTINATIONS
+
+    # -----------------------------
+    # 1) Destination Scores
+    # -----------------------------
+    score_values = []
+    for d in destinations:
+        score_values.append(scores[d])
+
+    # -----------------------------
+    # 2) Positive / Negative Evidence
+    # -----------------------------
+    pos_counts = []
+    neg_counts = []
+    for d in destinations:
+        pos_counts.append(len(state["recommended"][d]))
+        neg_counts.append(len(state["not_recommended"][d]))
+
+    # -----------------------------
+    # 3) Rule Firing Frequency
+    # -----------------------------
+    rule_freq = compute_rule_frequency(state)
+    rules = sorted(rule_freq.keys())
+    rule_values = []
+    for r in rules:
+        rule_values.append(rule_freq[r])
+
+    # -----------------------------
+    # 4) Category Contributions
+    # -----------------------------
+    cat_counts = compute_category_contributions(state)
+    categories = list(cat_counts.keys())
+    cat_values = []
+    for c in categories:
+        cat_values.append(cat_counts[c])
+
+    # -----------------------------
+    # Create 2x2 Subplot Figure
+    # -----------------------------
+    fig, axs = plt.subplots(2, 2, figsize=(14, 10))
+    fig.suptitle("Systems Statistical Visualization")
+
+    # ---- Subplot 1: Destination Scores ----
+    ax = axs[0][0]
+    ax.bar(destinations, score_values)
+    ax.set_title("Destination Scores")
+    ax.set_ylabel("Score")
+    ax.set_xlabel("Destination")
+
+    # ---- Subplot 2: Positive vs Negative Evidence ----
+    ax = axs[0][1]
+    x_positions = range(len(destinations))
+    width = 0.35
+
+    left_positions = []
+    right_positions = []
+
+    for i in x_positions:
+        left_positions.append(i - width / 2.0)
+        right_positions.append(i + width / 2.0)
+
+    ax.bar(left_positions, pos_counts, width, label="Positive")
+    ax.bar(right_positions, neg_counts, width, label="Negative")
+
+    ax.set_xticks(list(x_positions))
+    ax.set_xticklabels(destinations, rotation=15)
+    ax.set_title("Positive vs Negative Evidence")
+    ax.set_ylabel("Rule Count")
+    ax.set_xlabel("Destination")
+    ax.legend()
+
+    # ---- Subplot 3: Rule Firing Frequency (line + dots) ----
+    ax = axs[1][0]
+    ax.plot(rules, rule_values, marker='o', linestyle='-', linewidth=2)
+    ax.set_title("Rule Firing Frequency")
+    ax.set_ylabel("Count")
+    ax.set_xlabel("Rule")
+    ax.tick_params(axis="x", rotation=90)
+
+    # ---- Subplot 4: Category Contributions (Pie Chart) ----
+    ax = axs[1][1]
+    ax.pie(
+        cat_values,
+        labels=categories,
+        autopct='%1.1f%%',
+        startangle=140
+    )
+    ax.set_title("Category Contributions")
+
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.show()
+
+
 
 # ===========================
-# 6. Run inference
+# 7. Run inference
 # ===========================
 
 def run_inference(user, dest_facts):
@@ -873,3 +1028,8 @@ if __name__ == "__main__":
     print("\n=== RAW REASONING TRACE (for report / debugging) ===")
     for step in state["trace"]:
         print(step)
+
+    ENABLE_PLOTS = True
+
+    if ENABLE_PLOTS:
+        visualize_statistics(state, scores)
