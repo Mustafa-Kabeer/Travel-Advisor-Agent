@@ -100,6 +100,7 @@ def add_not_rec(state, dest, rule_name):
         state["trace"].append(msg)
 
 
+
 def add_once(lst, value):
     """
     Add value to list if not already present.
@@ -107,114 +108,15 @@ def add_once(lst, value):
     if value not in lst:
         lst.append(value)
 
-def compute_rule_frequency(state):
-    counts = {}
-    for entry in state["trace"]:
-        # Each trace line starts with something like: "R4_culture_history: ..."
-        parts = entry.split(":", 1)
-        if len(parts) > 0:
-            rule = parts[0].strip()
-            if rule != "":
-                counts[rule] = counts.get(rule, 0) + 1
-    return counts
 
-def compute_category_contributions(state):
-    rule_freq = compute_rule_frequency(state)
-    cat_counts = {}
-    for rule, count in rule_freq.items():
-        category = RULE_CATEGORY.get(rule, "Other")
-        cat_counts[category] = cat_counts.get(category, 0) + count
-    return cat_counts
-
-# def compute_dest_category_matrices(state):
-#     """Build matrices counting how many positive / negative rules
-#     fired per (destination, category).
-#
-#     Returns:
-#         categories   -> list of category names
-#         pos_matrix   -> dict: dest -> dict: category -> count
-#         neg_matrix   -> dict: dest -> dict: category -> count
-#     """
-#     # Collect all categories used in RULE_CATEGORY
-#     categories = []
-#     for rule_name in RULE_CATEGORY:
-#         cat = RULE_CATEGORY[rule_name]
-#         if cat not in categories:
-#             categories.append(cat)
-#
-#     # Initialize matrices
-#     pos_matrix = {}
-#     neg_matrix = {}
-#     for d in DESTINATIONS:
-#         pos_matrix[d] = {}
-#         neg_matrix[d] = {}
-#         for c in categories:
-#             pos_matrix[d][c] = 0
-#             neg_matrix[d][c] = 0
-#
-#     # Count positive rules per category per destination
-#     for d in DESTINATIONS:
-#         for rule_name in state["recommended"][d]:
-#             cat = RULE_CATEGORY.get(rule_name, "Other")
-#             if cat not in pos_matrix[d]:
-#                 pos_matrix[d][cat] = 0
-#             pos_matrix[d][cat] = pos_matrix[d][cat] + 1
-#
-#     # Count negative rules per category per destination
-#     for d in DESTINATIONS:
-#         for rule_name in state["not_recommended"][d]:
-#             cat = RULE_CATEGORY.get(rule_name, "Other")
-#             if cat not in neg_matrix[d]:
-#                 neg_matrix[d][cat] = 0
-#             neg_matrix[d][cat] = neg_matrix[d][cat] + 1
-#
-#     return categories, pos_matrix, neg_matrix
-
-
-def compute_dest_category_matrices(state):
-    """
-    Build matrices counting how many positive / negative rules
-    fired per (destination, category).
-
-    Returns:
-      categories   -> list of category names
-      pos_matrix   -> dict: dest -> dict: category -> count
-      neg_matrix   -> dict: dest -> dict: category -> count
-    """
-    # Collect all categories used in RULE_CATEGORY
-    categories = []
-    for rule_name in RULE_CATEGORY:
-        cat = RULE_CATEGORY[rule_name]
-        if cat not in categories:
-            categories.append(cat)
-
-    # Initialize matrices
-    pos_matrix = {}
-    neg_matrix = {}
-    for d in DESTINATIONS:
-        pos_matrix[d] = {}
-        neg_matrix[d] = {}
-        for c in categories:
-            pos_matrix[d][c] = 0
-            neg_matrix[d][c] = 0
-
-    # Count positive rules per category per destination
-    for d in DESTINATIONS:
-        for rule_name in state["recommended"][d]:
-            cat = RULE_CATEGORY.get(rule_name, "Other")
-            if cat not in pos_matrix[d]:
-                pos_matrix[d][cat] = 0
-            pos_matrix[d][cat] = pos_matrix[d][cat] + 1
-
-    # Count negative rules per category per destination
-    for d in DESTINATIONS:
-        for rule_name in state["not_recommended"][d]:
-            cat = RULE_CATEGORY.get(rule_name, "Other")
-            if cat not in neg_matrix[d]:
-                neg_matrix[d][cat] = 0
-            neg_matrix[d][cat] = neg_matrix[d][cat] + 1
-
-    return categories, pos_matrix, neg_matrix
+# Import plotting functions from travel_plot module
+from travel_plot import (
+    compute_rule_frequency,
+    compute_category_contributions,
+    compute_dest_category_matrices,
+    visualize_statistics,
+    visualize_statistics_3d,
+)
 
 
 # ===========================
