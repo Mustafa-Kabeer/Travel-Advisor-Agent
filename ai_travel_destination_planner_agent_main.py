@@ -936,6 +936,13 @@ def build_user_from_cli():
     return user
 
 if __name__ == "__main__":
+    # Launch GUI by default
+    from travel_gui import main as gui_main
+    gui_main()
+    
+    # ===== OLD CLI CODE (PRESERVED FOR REFERENCE) =====
+    # Uncomment the section below to use CLI mode instead of GUI
+    """
     dest_facts = build_destination_facts()
     # user = build_sample_user()   # old hardcoded example
     user = build_user_from_cli()   # new interactive version
@@ -1033,3 +1040,4 @@ if __name__ == "__main__":
 
     if ENABLE_PLOTS:
         visualize_statistics(state, scores)
+    """
