@@ -21,12 +21,16 @@ from ai_travel_destination_planner_agent_main import (
     run_inference,
     compute_scores,
     build_explanations,
-    TRAVEL_TIPS,
-    DESTINATIONS,
     compute_rule_frequency,
     compute_category_contributions,
     visualize_statistics_3d,
     compute_dest_category_matrices,
+)
+
+# Import static data from travel_info module
+from travel_info import (
+    TRAVEL_TIPS,
+    DESTINATIONS,
 )
 
 
