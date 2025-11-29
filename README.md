@@ -13,30 +13,77 @@ Supported destinations:
 
 The agent:
 
-- Asks the user questions in the **CLI** (terminal).  
+- Provides both a **GUI** (graphical user interface) and **CLI** (command-line interface).  
 - Uses a **hand-crafted knowledge base** (facts about destinations).  
 - Applies **inference rules** to derive recommendations.  
 - Computes a **score per destination**.  
 - Explains *why* each place is good or bad for the user.  
 - Shows a **reasoning trace** (which rules fired).  
 - Provides **travel tips** for the final recommended destination(s).  
+- Includes **statistical visualizations** (2D and 3D charts).
 - Is backed by an **OWL ontology** for graphical knowledge representation.
 
 ---
 
 ## 1. Project Structure
 
-Depending on how you organized your files, a typical structure might look like:
+The project has been refactored into a modular architecture for better organization and maintainability:
 
 ```text
 .
-├── travel_advisor_agent.py             # Main Python file (KB, rules, CLI, reasoning)
-├── travel_planner.owl          # OWL ontology for graphical representation
-├── README.md                   # This documentation file
-└── (optional) docs/            # Report, diagrams, etc.
-````
+├── ai_travel_destination_planner_agent_main.py  # Core inference engine and rule logic
+├── travel_info.py                               # Static knowledge base (facts, rules, tips, explanations)
+├── travel_plot.py                               # Visualization and plotting functions
+├── travel_gui.py                                # Tkinter GUI for interactive use
+├── travel_planner.owl                           # OWL ontology for graphical representation
+├── README.md                                    # This documentation file
+└── (optional) docs/                             # Report, diagrams, etc.
+```
 
-All the core logic lives in **`travel_advisor_agent.py`**.
+### Module Breakdown:
+
+#### 📌 `ai_travel_destination_planner_agent_main.py`
+The **core inference engine** containing:
+- State management (`init_state()`)
+- Rule implementations (R1–R25)
+- Inference orchestration (`run_inference()`)
+- Scoring logic (`compute_scores()`)
+- Explanation building (`build_explanations()`)
+- CLI helpers for interactive terminal mode
+
+#### 📊 `travel_info.py`
+**Static knowledge repository** containing:
+- Destination list (`DESTINATIONS`)
+- Destination facts (`build_destination_facts()`)
+- Travel tips for each destination (`TRAVEL_TIPS`)
+- Rule categories (`RULE_CATEGORY`)
+- Rule logic definitions (`RULE_LOGIC`)
+- Human-readable explanations (`EXPLANATIONS`)
+
+#### 📈 `travel_plot.py`
+**Visualization module** containing:
+- Helper functions for data aggregation
+  - `compute_rule_frequency()` - Counts rule firings
+  - `compute_category_contributions()` - Groups rules by category
+  - `compute_dest_category_matrices()` - Builds matrices for 3D plots
+- 2D visualization (`visualize_statistics()`)
+  - Destination scores bar chart
+  - Positive vs negative Evidence
+  - Rule firing frequency
+  - Category contributions pie chart
+- 3D visualization (`visualize_statistics_3d()`)
+  - 3D scatter plot: positives vs negatives vs score
+  - 3D heat cube: destination × category × intensity
+  - 3D bar landscape: category contribution terrain
+
+#### 🖥️ `travel_gui.py`
+**Graphical user interface** providing:
+- Modern form-based input with grouped sections
+- Tab-based workflow (Form → Results → Charts → Reasoning)
+- Embedded matplotlib visualizations
+- Rich text formatting for recommendations
+- 3D visualization window
+- Responsive layout
 
 ---
 
@@ -456,19 +503,52 @@ This satisfies the requirement of:
 
 ## 12. How to Run the Agent
 
+### Prerequisites
+
 1. Make sure you have **Python 3** installed.
-2. Put all code in `travel_advisor_agent.py`.
-3. Open a terminal in the project directory.
+2. Install required dependencies:
+
+```bash
+pip install matplotlib
+```
+
+### Running the GUI (Recommended)
+
+The easiest way to use the travel planner is through the graphical interface:
+
+```bash
+python travel_gui.py
+```
+
+Or directly run the main file (which launches the GUI by default):
+
+```bash
+python ai_travel_destination_planner_agent_main.py
+```
+
+**Using the GUI:**
+1. Fill out the form in the "Plan Your Trip" tab with your preferences
+2. Click "Find My Destination ➔"
+3. View results in the "Recommendations" tab
+4. Explore statistical charts in the "Visualizations" tab
+5. Click "Open 3D View" for interactive 3D visualizations
+6. Check the "Reasoning Logic" tab to see the inference trace
+
+### Running CLI Mode
+
+To use the command-line interface instead:
+
+1. Open `ai_travel_destination_planner_agent_main.py`
+2. Uncomment the CLI code section at the bottom (currently commented out)
+3. Comment out the GUI launch code
 4. Run:
 
 ```bash
-python travel_advisor_agent.py
+python ai_travel_destination_planner_agent_main.py
 ```
-or just use an editor.
 
-5. Answer the questions in the CLI (budget, season, preferences, etc.).
+5. Answer the questions in the terminal (budget, season, preferences, etc.)
 6. Read the output:
-
    * Ranked destinations
    * Reason explanations
    * Travel tips
@@ -477,16 +557,69 @@ or just use an editor.
 
 ---
 
-## 13. How to Customize
+## 13. Benefits of Modular Architecture
 
-You can easily extend the system:
+The project has been refactored into separate modules for improved maintainability:
 
-### 1. Add new facts
+### 🎯 **Separation of Concerns**
+- **Data** (`travel_info.py`) - All static information in one place
+- **Logic** (`ai_travel_destination_planner_agent_main.py`) - Pure inference rules
+- **Visualization** (`travel_plot.py`) - Plotting code isolated
+- **Interface** (`travel_gui.py`) - GUI separate from business logic
 
-* Add new activities (e.g., `nightlife`) and destinations that are good for them.
-* Add more detailed traffic or safety levels.
+### ✨ **Advantages**
 
-### 2. Add new rules
+1. **Easier Maintenance**: Changes to facts/tips don't require touching inference logic
+2. **Better Organization**: ~500 lines of code properly separated into focused modules
+3. **Reusability**: Plotting functions can be used by both GUI and CLI
+4. **Testability**: Each module can be tested independently
+5. **Scalability**: Easy to add new destinations, rules, or visualization types
+6. **Collaboration**: Multiple developers can work on different modules simultaneously
+
+### 📦 **Import Structure**
+```python
+# travel_gui.py imports from all modules:
+from ai_travel_destination_planner_agent_main import run_inference, compute_scores
+from travel_info import DESTINATIONS, TRAVEL_TIPS
+from travel_plot import visualize_statistics, visualize_statistics_3d
+```
+
+---
+
+## 14. How to Customize
+
+With the modular structure, customization is straightforward:
+
+### 1. Add new facts (edit `travel_info.py`)
+
+* Add new activities (e.g., `nightlife`) to destination facts
+* Add more detailed traffic or safety levels
+* Add new destinations to `DESTINATIONS` list
+* Update `TRAVEL_TIPS` with tips for new destinations
+
+### 2. Add new rules (edit `ai_travel_destination_planner_agent_main.py`)
+
+* Create new rule functions (e.g., `rule_weather_preferences`)
+* Add their logic to `RULE_LOGIC` in `travel_info.py`
+* Add to `RULE_CATEGORY` in `travel_info.py`
+* Call them inside `run_inference()`
+* Add human explanations to `EXPLANATIONS` in `travel_info.py`
+
+### 3. Customize visualizations (edit `travel_plot.py`)
+
+* Modify existing chart types
+* Add new plot types (e.g., heatmaps, network graphs)
+* Change colors, styles, or layouts
+* Add export functionality for charts
+
+### 4. Enhance the GUI (edit `travel_gui.py`)
+
+* Add new input fields for additional preferences
+* Customize color schemes and styling
+* Add new tabs or sections
+* Implement export/save functionality
+
+### 5. Tweak scoring (edit `ai_travel_destination_planner_agent_main.py`)
 
 * Create new rule functions.
 * Add their logic to `RULE_LOGIC`.
@@ -503,21 +636,35 @@ You can easily extend the system:
 
 ---
 
-## 14. Summary
+## 15. Summary
 
-This project demonstrates a **small but complete knowledge-based AI system**:
+This project demonstrates a **small but complete knowledge-based AI system** with modern software engineering practices:
 
-* Clear **PEAS model** (Performance, Environment, Actuators, Sensors).
-* Explicit **facts and rules** instead of hidden ML.
-* Transparent reasoning with **full rule traces**.
-* A matching **OWL ontology** for graphical representation.
-* User-friendly CLI and explanations.
+* Clear **PEAS model** (Performance, Environment, Actuators, Sensors)
+* Explicit **facts and rules** instead of hidden ML
+* Transparent reasoning with **full rule traces**
+* A matching **OWL ontology** for graphical representation
+* **Modular architecture** with separated concerns (data, logic, visualization, interface)
+* **Dual interface**: User-friendly GUI and CLI options
+* **Rich visualizations**: 2D charts and interactive 3D plots
+* Comprehensive explanations with travel tips
+
+### Key Features:
+
+✅ **Knowledge-Based Reasoning** - Uses logical inference, not machine learning  
+✅ **Explainable AI** - Every recommendation comes with clear reasoning  
+✅ **Modular Design** - Clean separation into 4 focused modules  
+✅ **Visual Analytics** - Statistical charts showing decision factors  
+✅ **Interactive GUI** - Modern Tkinter interface with tabs and visualizations  
+✅ **Ontology Integration** - OWL file for semantic representation  
 
 It is ideal for:
 
 * AI / Knowledge-Based Systems coursework
 * Demonstrating logical inference, Modus Ponens, and entailment
-* Showcasing explainable AI in a small, understandable domain   
+* Showcasing explainable AI in a small, understandable domain
+* Learning modular Python project architecture
+* Understanding rule-based expert systems   
 * 
 | Destination      | Exp | MedCost | Budget | ExPT | GoodPT | GoodCuisine | VerySafe | MidSafe | HighTraffic | MidTraffic | LowTrafficOut |
 |------------------|:---:|:-------:|:------:|:----:|:------:|:-----------:|:--------:|:-------:|:-----------:|:----------:|:-------------:|
