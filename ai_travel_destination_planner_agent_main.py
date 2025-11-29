@@ -2,6 +2,8 @@
 # AI - Travel Destination Planner Agent
 # =============================================
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # needed for 3D plots in some Matplotlib versions
+
 
 DESTINATIONS = [
     "Switzerland",
@@ -323,6 +325,95 @@ def compute_category_contributions(state):
         cat_counts[category] = cat_counts.get(category, 0) + count
     return cat_counts
 
+# def compute_dest_category_matrices(state):
+#     """Build matrices counting how many positive / negative rules
+#     fired per (destination, category).
+#
+#     Returns:
+#         categories   -> list of category names
+#         pos_matrix   -> dict: dest -> dict: category -> count
+#         neg_matrix   -> dict: dest -> dict: category -> count
+#     """
+#     # Collect all categories used in RULE_CATEGORY
+#     categories = []
+#     for rule_name in RULE_CATEGORY:
+#         cat = RULE_CATEGORY[rule_name]
+#         if cat not in categories:
+#             categories.append(cat)
+#
+#     # Initialize matrices
+#     pos_matrix = {}
+#     neg_matrix = {}
+#     for d in DESTINATIONS:
+#         pos_matrix[d] = {}
+#         neg_matrix[d] = {}
+#         for c in categories:
+#             pos_matrix[d][c] = 0
+#             neg_matrix[d][c] = 0
+#
+#     # Count positive rules per category per destination
+#     for d in DESTINATIONS:
+#         for rule_name in state["recommended"][d]:
+#             cat = RULE_CATEGORY.get(rule_name, "Other")
+#             if cat not in pos_matrix[d]:
+#                 pos_matrix[d][cat] = 0
+#             pos_matrix[d][cat] = pos_matrix[d][cat] + 1
+#
+#     # Count negative rules per category per destination
+#     for d in DESTINATIONS:
+#         for rule_name in state["not_recommended"][d]:
+#             cat = RULE_CATEGORY.get(rule_name, "Other")
+#             if cat not in neg_matrix[d]:
+#                 neg_matrix[d][cat] = 0
+#             neg_matrix[d][cat] = neg_matrix[d][cat] + 1
+#
+#     return categories, pos_matrix, neg_matrix
+
+
+def compute_dest_category_matrices(state):
+    """
+    Build matrices counting how many positive / negative rules
+    fired per (destination, category).
+
+    Returns:
+      categories   -> list of category names
+      pos_matrix   -> dict: dest -> dict: category -> count
+      neg_matrix   -> dict: dest -> dict: category -> count
+    """
+    # Collect all categories used in RULE_CATEGORY
+    categories = []
+    for rule_name in RULE_CATEGORY:
+        cat = RULE_CATEGORY[rule_name]
+        if cat not in categories:
+            categories.append(cat)
+
+    # Initialize matrices
+    pos_matrix = {}
+    neg_matrix = {}
+    for d in DESTINATIONS:
+        pos_matrix[d] = {}
+        neg_matrix[d] = {}
+        for c in categories:
+            pos_matrix[d][c] = 0
+            neg_matrix[d][c] = 0
+
+    # Count positive rules per category per destination
+    for d in DESTINATIONS:
+        for rule_name in state["recommended"][d]:
+            cat = RULE_CATEGORY.get(rule_name, "Other")
+            if cat not in pos_matrix[d]:
+                pos_matrix[d][cat] = 0
+            pos_matrix[d][cat] = pos_matrix[d][cat] + 1
+
+    # Count negative rules per category per destination
+    for d in DESTINATIONS:
+        for rule_name in state["not_recommended"][d]:
+            cat = RULE_CATEGORY.get(rule_name, "Other")
+            if cat not in neg_matrix[d]:
+                neg_matrix[d][cat] = 0
+            neg_matrix[d][cat] = neg_matrix[d][cat] + 1
+
+    return categories, pos_matrix, neg_matrix
 
 
 # ===========================
@@ -563,7 +654,6 @@ def rule_neutral_and_final(state):
 # 6. Main Ploting
 # ===========================
 
-import matplotlib.pyplot as plt
 
 def visualize_statistics(state, scores):
     destinations = DESTINATIONS
@@ -656,6 +746,138 @@ def visualize_statistics(state, scores):
     ax.set_title("Category Contributions")
 
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.show()
+
+def visualize_statistics_3d(state, scores):
+    """
+    Show a 3D figure with three subplots:
+    1) 3D scatter: positives vs negatives vs score
+    2) 3D "heat cube": destination × category × total rule intensity
+    3) 3D bar landscape: net category contribution (pos - neg) by destination
+    """
+    destinations = DESTINATIONS
+
+    # ----------------------------------
+    # Common data: positives / negatives / scores
+    # ----------------------------------
+    pos_counts = []
+    neg_counts = []
+    score_values = []
+
+    for d in destinations:
+        pos_counts.append(len(state["recommended"][d]))
+        neg_counts.append(len(state["not_recommended"][d]))
+        score_values.append(scores[d])
+
+    dest_indices = range(len(destinations))
+
+    # Destination-category matrices
+    categories, pos_matrix, neg_matrix = compute_dest_category_matrices(state)
+    cat_indices = range(len(categories))
+
+    # ----------------------------------
+    # Create figure with 3D subplots
+    # ----------------------------------
+    fig = plt.figure(figsize=(16, 5))
+    fig.suptitle("3D Systems Statistical Visualization")
+
+    # ==================================
+    # 1) 3D Scatter: Positives vs Negatives vs Score
+    # ==================================
+    ax1 = fig.add_subplot(1, 3, 1, projection='3d')
+    xs = pos_counts
+    ys = neg_counts
+    zs = score_values
+
+    ax1.scatter(xs, ys, zs)
+
+    # Label each point with destination name
+    for i, d in enumerate(destinations):
+        ax1.text(xs[i], ys[i], zs[i], d)
+
+    ax1.set_title("3D: Positives vs Negatives vs Score")
+    ax1.set_xlabel("Positive rule count")
+    ax1.set_ylabel("Negative rule count")
+    ax1.set_zlabel("Score")
+
+    # ==================================
+    # 2) 3D Heat Cube: Dest × Category × Intensity
+    #    Intensity = pos + neg per dest/category
+    # ==================================
+    ax2 = fig.add_subplot(1, 3, 2, projection='3d')
+
+    heat_x = []   # destination index
+    heat_y = []   # category index
+    heat_z = []   # total intensity (pos + neg)
+
+    for i, d in enumerate(destinations):
+        for j, c in enumerate(categories):
+            total = pos_matrix[d].get(c, 0) + neg_matrix[d].get(c, 0)
+            heat_x.append(i)
+            heat_y.append(j)
+            heat_z.append(total)
+
+    ax2.scatter(heat_x, heat_y, heat_z)
+    ax2.set_title("3D Heat Cube: Dest × Category × Intensity")
+    ax2.set_xlabel("Destination")
+    ax2.set_ylabel("Category")
+    ax2.set_zlabel("Total rules fired")
+
+    ax2.set_xticks(list(dest_indices))
+    ax2.set_xticklabels(destinations, rotation=45, ha="right")
+
+    ax2.set_yticks(list(cat_indices))
+    ax2.set_yticklabels(categories, rotation=45, ha="right")
+
+    # ==================================
+    # 3) 3D Bar Landscape: Category Contribution Terrain
+    #    Net contribution = pos - neg per category
+    # ==================================
+    ax3 = fig.add_subplot(1, 3, 3, projection='3d')
+
+    bar_x = []
+    bar_y = []
+    bar_z = []
+    bar_dx = []
+    bar_dy = []
+    bar_dz = []
+
+    width_x = 0.4
+    width_y = 0.4
+
+    for i, d in enumerate(destinations):
+        for j, c in enumerate(categories):
+            pos_val = pos_matrix[d].get(c, 0)
+            neg_val = neg_matrix[d].get(c, 0)
+            net = pos_val - neg_val  # net "vote" of that category
+
+            if net >= 0:
+                z_base = 0
+                dz = net
+            else:
+                z_base = net
+                dz = -net
+
+            bar_x.append(i - width_x / 2.0)
+            bar_y.append(j - width_y / 2.0)
+            bar_z.append(z_base)
+            bar_dx.append(width_x)
+            bar_dy.append(width_y)
+            bar_dz.append(dz)
+
+    ax3.bar3d(bar_x, bar_y, bar_z, bar_dx, bar_dy, bar_dz)
+    ax3.set_title("3D Bar Landscape: Category Contribution Terrain")
+    ax3.set_xlabel("Destination")
+    ax3.set_ylabel("Category")
+    ax3.set_zlabel("Net contribution (pos - neg)")
+
+    ax3.set_xticks(list(dest_indices))
+    ax3.set_xticklabels(destinations, rotation=45, ha="right")
+
+    ax3.set_yticks(list(cat_indices))
+    ax3.set_yticklabels(categories, rotation=45, ha="right")
+
+    fig.tight_layout(rect=[0, 0.03, 1, 0.92])
     plt.show()
 
 
