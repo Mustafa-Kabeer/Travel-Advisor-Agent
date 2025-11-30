@@ -1,7 +1,7 @@
 # AI Travel Planner – Knowledge-Based Reasoning Agent
 
 This project is a **knowledge-based AI Travel Planner agent** written in Python.  
-It recommends one of five destinations based on user preferences using **logical rules**, not machine learning.
+It recommends one of seven destinations based on user preferences using **logical rules**, not machine learning.
 
 Supported destinations:
 
@@ -10,6 +10,8 @@ Supported destinations:
 - 🇯🇵 Japan  
 - 🇬🇧 United Kingdom  
 - 🇹🇷 Turkey  
+- 🇦🇪 Dubai (UAE)  
+- 🇸🇦 Saudi Arabia  
 
 The agent:
 
@@ -20,6 +22,7 @@ The agent:
 - Explains *why* each place is good or bad for the user.  
 - Shows a **reasoning trace** (which rules fired).  
 - Provides **travel tips** for the final recommended destination(s).  
+- Includes **comprehensive visa requirements and entry conditions** for all destinations.
 - Includes **statistical visualizations** (2D and 3D charts).
 - Is backed by an **OWL ontology** for graphical knowledge representation.
 
@@ -53,9 +56,9 @@ The **core inference engine** containing:
 
 #### 📊 `travel_info.py`
 **Static knowledge repository** containing:
-- Destination list (`DESTINATIONS`)
-- Destination facts (`build_destination_facts()`)
-- Travel tips for each destination (`TRAVEL_TIPS`)
+- Destination list (`DESTINATIONS`) - Now includes 7 destinations
+- Destination facts (`build_destination_facts()`) - Comprehensive attributes for each destination
+- Travel tips for each destination (`TRAVEL_TIPS`) - Including visa requirements and entry conditions
 - Rule categories (`RULE_CATEGORY`)
 - Rule logic definitions (`RULE_LOGIC`)
 - Human-readable explanations (`EXPLANATIONS`)
@@ -82,6 +85,8 @@ The **core inference engine** containing:
 - Tab-based workflow (Form → Results → Charts → Reasoning)
 - Embedded matplotlib visualizations
 - Rich text formatting for recommendations
+- **Dedicated visa information display** with special formatting
+- Visa requirements shown prominently for each destination
 - 3D visualization window
 - Responsive layout
 
@@ -124,27 +129,27 @@ This part defines **what the agent knows** about each country.
 ```python
 def build_destination_facts():
     dest_facts = {
-        "expensive": ["Switzerland", "Japan"],
-        "medium_cost": ["Italy", "United_Kingdom"],
+        "expensive": ["Switzerland", "Japan", "Dubai"],
+        "medium_cost": ["Italy", "United_Kingdom", "Saudi"],
         "budget_friendly": ["Turkey"],
 
-        "excellent_public_transport": ["Switzerland", "Japan"],
+        "excellent_public_transport": ["Switzerland", "Japan", "Dubai"],
         "good_public_transport": ["Italy", "United_Kingdom"],
 
-        "good_for_nature_scenery": ["Switzerland"],
-        "good_for_culture_history": ["Italy", "Switzerland", "United_Kingdom"],
-        "good_for_city_life": ["Italy", "Japan", "United_Kingdom"],
-        "good_for_shopping": ["Italy", "Japan", "Turkey"],
-        "good_for_adventure": ["Switzerland", "Japan", "Turkey"],
+        "good_for_nature_scenery": ["Switzerland", "Saudi"],
+        "good_for_culture_history": ["Italy", "Switzerland", "United_Kingdom", "Saudi"],
+        "good_for_city_life": ["Italy", "Japan", "United_Kingdom", "Dubai"],
+        "good_for_shopping": ["Italy", "Japan", "Turkey", "Dubai", "Saudi"],
+        "good_for_adventure": ["Switzerland", "Japan", "Turkey", "Dubai", "Saudi"],
 
-        "good_local_cuisine": ["Italy", "Turkey"],
+        "good_local_cuisine": ["Italy", "Turkey", "Dubai", "Saudi"],
 
-        "very_safe_destination": ["Switzerland", "Japan"],
+        "very_safe_destination": ["Switzerland", "Japan", "Dubai", "Saudi"],
         "mid_safety": ["Italy", "United_Kingdom", "Turkey"],
 
-        "high_traffic_peak": ["Italy", "Japan"],
-        "mid_traffic_in_cities": ["Switzerland", "United_Kingdom", "Turkey"],
-        "low_traffic_outside_cities": ["Switzerland"],
+        "high_traffic_peak": ["Italy", "Japan", "Dubai"],
+        "mid_traffic_in_cities": ["Switzerland", "United_Kingdom", "Turkey", "Saudi"],
+        "low_traffic_outside_cities": ["Switzerland", "Saudi"],
 
         "best_season": {
             "Switzerland": ["spring", "summer"],
@@ -152,6 +157,8 @@ def build_destination_facts():
             "Japan": ["spring", "autumn"],
             "United_Kingdom": ["summer"],
             "Turkey": ["spring"],
+            "Dubai": ["winter", "spring"],
+            "Saudi": ["winter", "spring"],
         },
     }
     return dest_facts
@@ -447,9 +454,9 @@ Things to be careful about:
 
 ---
 
-## 10. Travel Tips (`TRAVEL_TIPS` and final output)
+## 10. Travel Tips with Visa Requirements (`TRAVEL_TIPS` and final output)
 
-For each destination, there is a set of **5 static travel tips**:
+For each destination, there is a comprehensive set of **travel tips including visa requirements and entry conditions**:
 
 ```python
 TRAVEL_TIPS = {
@@ -458,16 +465,28 @@ TRAVEL_TIPS = {
         "Public transport is excellent – consider a travel pass.",
         "Bring comfortable shoes; many scenic spots involve walking.",
         "Food can be expensive; plan your budget.",
-        "Respect quiet hours and local etiquette."
+        "Respect quiet hours and local etiquette.",
+        "Visa: Switzerland is part of the Schengen Area. Many nationalities can visit visa-free for up to 90 days within 180 days.",
+        "EU/EEA/Swiss citizens only need a valid ID card. Others should check if they need a Schengen visa.",
+        "Apply for a Schengen visa at least 15 days before travel; processing can take up to 15 working days."
     ],
-    "Italy": [
-        "Carry a light scarf for churches.",
-        "Book tickets in advance for popular attractions.",
-        "Watch for pickpockets in crowded areas.",
-        "Check opening hours; some places close midday.",
-        "Try local food in smaller family-run places."
+    "Dubai": [
+        "Dress modestly in public areas; swimwear is fine at beaches and pools but cover up elsewhere.",
+        "The metro and taxis are clean, efficient, and affordable for getting around the city.",
+        "Avoid visiting during peak summer (June-August) as temperatures can exceed 40°C/104°F.",
+        "Visa: UAE offers visa-on-arrival for many nationalities (30-90 days). Others can apply for e-Visa online.",
+        "Check if your nationality is eligible for free visa-on-arrival or needs pre-approval through UAE immigration.",
+        "Passport must be valid for at least 6 months from entry date; return ticket may be required."
     ],
-    # ... Japan, United_Kingdom, Turkey
+    "Saudi": [
+        "Dress modestly – women should wear an abaya in public, and men should avoid shorts in religious sites.",
+        "Respect prayer times; many shops and restaurants close briefly during these periods.",
+        "Visit historical sites like Al-Ula, Diriyah, and the ancient Nabatean city of Madain Saleh.",
+        "Visa: Saudi now offers e-Visa and visa-on-arrival for tourists from eligible countries (1-year validity, 90-day stay).",
+        "Apply online through the official Saudi visa portal; approval usually takes 5-30 minutes for e-Visa.",
+        "Passport must be valid for at least 6 months; travel insurance is mandatory for visa approval."
+    ],
+    # ... Italy, Japan, United_Kingdom, Turkey (all include visa information)
 }
 ```
 
@@ -533,6 +552,7 @@ python ai_travel_destination_planner_agent_main.py
 4. Explore statistical charts in the "Visualizations" tab
 5. Click "Open 3D View" for interactive 3D visualizations
 6. Check the "Reasoning Logic" tab to see the inference trace
+7. Review visa requirements prominently displayed for each destination
 
 ### Running CLI Mode
 
@@ -594,8 +614,9 @@ With the modular structure, customization is straightforward:
 
 * Add new activities (e.g., `nightlife`) to destination facts
 * Add more detailed traffic or safety levels
-* Add new destinations to `DESTINATIONS` list
-* Update `TRAVEL_TIPS` with tips for new destinations
+* Add new destinations to `DESTINATIONS` list (currently supports 7 destinations)
+* Update `TRAVEL_TIPS` with tips and visa requirements for new destinations
+* Update destination facts in `build_destination_facts()` to include new destinations
 
 ### 2. Add new rules (edit `ai_travel_destination_planner_agent_main.py`)
 
@@ -656,7 +677,9 @@ This project demonstrates a **small but complete knowledge-based AI system** wit
 ✅ **Modular Design** - Clean separation into 4 focused modules  
 ✅ **Visual Analytics** - Statistical charts showing decision factors  
 ✅ **Interactive GUI** - Modern Tkinter interface with tabs and visualizations  
+✅ **Comprehensive Visa Information** - Detailed visa requirements and entry conditions for all 7 destinations  
 ✅ **Ontology Integration** - OWL file for semantic representation  
+✅ **Expanded Coverage** - Now supports 7 destinations across Europe, Asia, and Middle East  
 
 It is ideal for:
 
@@ -673,3 +696,5 @@ It is ideal for:
 | Japan            |  T  |    F    |   F    |  T   |   F    |      F      |    T     |    F    |      T      |     F      |       F       |
 | United_Kingdom   |  F  |    T    |   F    |  F   |   T    |      F      |    F     |    T    |      F      |     T      |       F       |
 | Turkey           |  F  |    F    |   T    |  F   |   F    |      T      |    F     |    T    |      F      |     T      |       F       |
+| Dubai            |  T  |    F    |   F    |  T   |   F    |      T      |    T     |    F    |      T      |     F      |       F       |
+| Saudi            |  F  |    T    |   F    |  F   |   F    |      T      |    T     |    F    |      F      |     T      |       T       |
