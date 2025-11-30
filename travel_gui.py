@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Import the logic functions from the main file
-from ai_travel_destination_planner_agent_main import (
+from travel_core import (
     build_destination_facts,
     run_inference,
     compute_scores,
@@ -592,7 +592,6 @@ class TravelPlannerGUI(tk.Tk):
 
         fig.tight_layout()
         canvas.draw()
-
 
 
 
