@@ -34,7 +34,7 @@ The project has been refactored into a modular architecture for better organizat
 
 ```text
 .
-├── ai_travel_destination_planner_agent_main.py  # Core inference engine and rule logic
+├── travel_core.py                               # Core inference engine and rule logic
 ├── travel_info.py                               # Static knowledge base (facts, rules, tips, explanations)
 ├── travel_plot.py                               # Visualization and plotting functions
 ├── travel_gui.py                                # Tkinter GUI for interactive use
@@ -45,7 +45,7 @@ The project has been refactored into a modular architecture for better organizat
 
 ### Module Breakdown:
 
-#### 📌 `ai_travel_destination_planner_agent_main.py`
+#### 📌 `travel_core.py`
 The **core inference engine** containing:
 - State management (`init_state()`)
 - Rule implementations (R1–R25)
@@ -542,7 +542,7 @@ python travel_gui.py
 Or directly run the main file (which launches the GUI by default):
 
 ```bash
-python ai_travel_destination_planner_agent_main.py
+python travel_core.py
 ```
 
 **Using the GUI:**
@@ -558,13 +558,13 @@ python ai_travel_destination_planner_agent_main.py
 
 To use the command-line interface instead:
 
-1. Open `ai_travel_destination_planner_agent_main.py`
+1. Open `travel_core.py`
 2. Uncomment the CLI code section at the bottom (currently commented out)
 3. Comment out the GUI launch code
 4. Run:
 
 ```bash
-python ai_travel_destination_planner_agent_main.py
+python travel_core.py
 ```
 
 5. Answer the questions in the terminal (budget, season, preferences, etc.)
@@ -599,7 +599,7 @@ The project has been refactored into separate modules for improved maintainabili
 ### 📦 **Import Structure**
 ```python
 # travel_gui.py imports from all modules:
-from ai_travel_destination_planner_agent_main import run_inference, compute_scores
+from travel_core import run_inference, compute_scores
 from travel_info import DESTINATIONS, TRAVEL_TIPS
 from travel_plot import visualize_statistics, visualize_statistics_3d
 ```
@@ -618,7 +618,7 @@ With the modular structure, customization is straightforward:
 * Update `TRAVEL_TIPS` with tips and visa requirements for new destinations
 * Update destination facts in `build_destination_facts()` to include new destinations
 
-### 2. Add new rules (edit `ai_travel_destination_planner_agent_main.py`)
+### 2. Add new rules (edit `travel_core.py`)
 
 * Create new rule functions (e.g., `rule_weather_preferences`)
 * Add their logic to `RULE_LOGIC` in `travel_info.py`
@@ -640,17 +640,12 @@ With the modular structure, customization is straightforward:
 * Add new tabs or sections
 * Implement export/save functionality
 
-### 5. Tweak scoring (edit `ai_travel_destination_planner_agent_main.py`)
-
-* Create new rule functions.
-* Add their logic to `RULE_LOGIC`.
-* Call them inside `run_inference()`.
-
-### 3. Tweak scoring
+### 5. Tweak scoring (edit `travel_core.py`)
 
 * Change weights in `compute_scores()` if you want different behavior.
+* Adjust scoring logic to prioritize different factors
 
-### 4. Localize wording
+### 6. Localize wording
 
 * Change explanations and tips to another language.
 * Customize EXPLANATIONS to match your report style.
@@ -688,7 +683,10 @@ It is ideal for:
 * Showcasing explainable AI in a small, understandable domain
 * Learning modular Python project architecture
 * Understanding rule-based expert systems   
-* 
+
+
+
+here is an example of the truth table:
 | Destination      | Exp | MedCost | Budget | ExPT | GoodPT | GoodCuisine | VerySafe | MidSafe | HighTraffic | MidTraffic | LowTrafficOut |
 |------------------|:---:|:-------:|:------:|:----:|:------:|:-----------:|:--------:|:-------:|:-----------:|:----------:|:-------------:|
 | Switzerland      |  T  |    F    |   F    |  T   |   F    |      F      |    T     |    F    |      F      |     T      |       T       |
