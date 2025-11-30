@@ -18,6 +18,8 @@ DESTINATIONS = [
     "Japan",
     "United_Kingdom",
     "Turkey",
+    "Dubai",
+    "Saudi",
 ]
 
 
@@ -32,32 +34,32 @@ def build_destination_facts():
     """
     dest_facts = {
         # Cost level
-        "expensive": ["Switzerland", "Japan"],
-        "medium_cost": ["Italy", "United_Kingdom"],
+        "expensive": ["Switzerland", "Japan", "Dubai"],
+        "medium_cost": ["Italy", "United_Kingdom", "Saudi"],
         "budget_friendly": ["Turkey"],
 
         # Transport quality
-        "excellent_public_transport": ["Switzerland", "Japan"],
+        "excellent_public_transport": ["Switzerland", "Japan", "Dubai"],
         "good_public_transport": ["Italy", "United_Kingdom"],
 
         # Activities / experiences
-        "good_for_nature_scenery": ["Switzerland"],
-        "good_for_culture_history": ["Italy", "Switzerland", "United_Kingdom"],
-        "good_for_city_life": ["Italy", "Japan", "United_Kingdom"],
-        "good_for_shopping": ["Italy", "Japan", "Turkey"],
-        "good_for_adventure": ["Switzerland", "Japan", "Turkey"],
+        "good_for_nature_scenery": ["Switzerland", "Saudi"],
+        "good_for_culture_history": ["Italy", "Switzerland", "United_Kingdom", "Saudi"],
+        "good_for_city_life": ["Italy", "Japan", "United_Kingdom", "Dubai"],
+        "good_for_shopping": ["Italy", "Japan", "Turkey", "Dubai", "Saudi"],
+        "good_for_adventure": ["Switzerland", "Japan", "Turkey", "Dubai", "Saudi"],
 
         # Food
-        "good_local_cuisine": ["Italy", "Turkey"],
+        "good_local_cuisine": ["Italy", "Turkey", "Dubai", "Saudi"],
 
         # Safety
-        "very_safe_destination": ["Switzerland", "Japan"],
+        "very_safe_destination": ["Switzerland", "Japan", "Dubai", "Saudi"],
         "mid_safety": ["Italy", "United_Kingdom", "Turkey"],
 
         # Traffic
-        "high_traffic_peak": ["Italy", "Japan"],
-        "mid_traffic_in_cities": ["Switzerland", "United_Kingdom", "Turkey"],
-        "low_traffic_outside_cities": ["Switzerland"],
+        "high_traffic_peak": ["Italy", "Japan", "Dubai"],
+        "mid_traffic_in_cities": ["Switzerland", "United_Kingdom", "Turkey", "Saudi"],
+        "low_traffic_outside_cities": ["Switzerland", "Saudi"],
 
         # Seasons: destination -> list of best seasons
         "best_season": {
@@ -66,6 +68,8 @@ def build_destination_facts():
             "Japan": ["spring", "autumn"],
             "United_Kingdom": ["summer"],
             "Turkey": ["spring"],
+            "Dubai": ["winter", "spring"],
+            "Saudi": ["winter", "spring"],
         },
     }
 
@@ -83,6 +87,9 @@ TRAVEL_TIPS = {
         "Bring comfortable shoes; many scenic spots involve walking and light hiking.",
         "Food and services can be expensive; plan your budget for meals and activities.",
         "Respect quiet hours and local etiquette, especially in small towns and on trains.",
+        "Visa: Switzerland is part of the Schengen Area. Many nationalities can visit visa-free for up to 90 days within 180 days.",
+        "EU/EEA/Swiss citizens only need a valid ID card. Others should check if they need a Schengen visa.",
+        "Apply for a Schengen visa at least 15 days before travel; processing can take up to 15 working days.",
     ],
     "Italy": [
         "Carry a light scarf or shawl for visiting churches with dress codes.",
@@ -90,6 +97,9 @@ TRAVEL_TIPS = {
         "Be mindful of pickpockets in crowded tourist areas and on public transport.",
         "Many shops and small restaurants may close midday; check opening hours.",
         "Try local dishes in smaller, family-run places away from the main tourist streets.",
+        "Visa: Italy is part of the Schengen Area. Visa requirements same as other Schengen countries.",
+        "Most visitors can stay visa-free for 90 days within 180 days; check your nationality's specific requirements.",
+        "Ensure your passport is valid for at least 3 months beyond your planned departure from the Schengen area.",
     ],
     "Japan": [
         "Consider getting a transport card (like a regional IC card) for easy metro and train travel.",
@@ -97,6 +107,9 @@ TRAVEL_TIPS = {
         "Cashless is more common now, but it's still useful to carry some cash for small places.",
         "Trash bins can be rare outdoors; carry a small bag for your rubbish.",
         "Queuing and personal space are important – follow local cues in stations and shops.",
+        "Visa: Many countries have visa-free access for tourism (15-90 days depending on nationality).",
+        "Check if you're eligible for visa exemption or need to apply for a tourist visa at a Japanese embassy.",
+        "Ensure your passport is valid for the duration of your stay; onward/return ticket may be required at entry.",
     ],
     "United_Kingdom": [
         "Weather is unpredictable – pack layers and a compact umbrella or raincoat.",
@@ -104,6 +117,9 @@ TRAVEL_TIPS = {
         "Look both ways and be careful crossing roads; traffic keeps to the left.",
         "Trains can be expensive; check off-peak times or railcards for better prices.",
         "Pubs often have their own customs (order at the bar, keep your tab organized).",
+        "Visa: UK has its own visa system (not part of Schengen). Many nationalities can visit visa-free for up to 6 months.",
+        "EU/EEA citizens now need a valid passport (ID cards no longer accepted for most nationalities post-Brexit).",
+        "If you need a visa, apply online for a Standard Visitor visa; processing typically takes 3 weeks.",
     ],
     "Turkey": [
         "Dress modestly when visiting mosques and religious sites; bring a light scarf.",
@@ -111,6 +127,32 @@ TRAVEL_TIPS = {
         "Use licensed taxis or well-known ride apps, and check the meter is running.",
         "Tap water quality can vary; consider bottled water if you are unsure.",
         "Try local foods like kebabs and meze, but be cautious with street food if you have a sensitive stomach.",
+        "Visa: Many nationalities can get an e-Visa online (quick and easy process, usually approved within minutes).",
+        "Some countries have visa-free access for tourism (up to 90 days); check Turkish e-Visa website for your nationality.",
+        "Ensure passport is valid for at least 6 months beyond your entry date into Turkey.",
+    ],
+    "Dubai": [
+        "Dress modestly in public areas; swimwear is fine at beaches and pools but cover up elsewhere.",
+        "The metro and taxis are clean, efficient, and affordable for getting around the city.",
+        "Avoid visiting during peak summer (June-August) as temperatures can exceed 40°C/104°F.",
+        "Alcohol is only served in licensed hotels and venues; public intoxication is illegal.",
+        "Try traditional Emirati cuisine like Al Harees and Machboos, along with diverse international food.",
+        "Book popular attractions like Burj Khalifa and desert safaris in advance for better prices.",
+        "Visa: UAE offers visa-on-arrival for many nationalities (30-90 days). Others can apply for e-Visa online.",
+        "Check if your nationality is eligible for free visa-on-arrival or needs pre-approval through UAE immigration.",
+        "Passport must be valid for at least 6 months from entry date; return ticket may be required.",
+    ],
+    "Saudi": [
+        "Dress modestly – women should wear an abaya in public, and men should avoid shorts in religious sites.",
+        "Respect prayer times; many shops and restaurants close briefly during these periods.",
+        "Visit historical sites like Al-Ula, Diriyah, and the ancient Nabatean city of Madain Saleh.",
+        "The country is undergoing rapid tourism development with new attractions opening regularly.",
+        "Try traditional Saudi dishes like Kabsa, Mandi, and Jareesh at local restaurants.",
+        "English is increasingly common in tourist areas, but learning basic Arabic phrases is appreciated.",
+        "Winter months (November-February) offer the most comfortable weather for outdoor activities.",
+        "Visa: Saudi now offers e-Visa and visa-on-arrival for tourists from eligible countries (1-year validity, 90-day stay).",
+        "Apply online through the official Saudi visa portal; approval usually takes 5-30 minutes for e-Visa.",
+        "Passport must be valid for at least 6 months; travel insurance is mandatory for visa approval.",
     ],
 }
 

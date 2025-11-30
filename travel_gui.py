@@ -212,6 +212,8 @@ class TravelPlannerGUI(tk.Tk):
         self.results_text.tag_config("good", foreground="#27ae60")
         self.results_text.tag_config("bad", foreground="#c0392b")
         self.results_text.tag_config("tip", font=("Segoe UI", 10, "italic"), foreground="#8e44ad")
+        self.results_text.tag_config("visa", font=("Segoe UI", 10), foreground="#16a085", background="#e8f8f5")
+        self.results_text.tag_config("visa_header", font=("Segoe UI", 11, "bold"), foreground="#16a085")
         self.results_text.tag_config("label_strong", background="#27ae60", foreground="white")
         self.results_text.tag_config("label_warn", background="#f39c12", foreground="white")
         self.results_text.tag_config("label_bad", background="#c0392b", foreground="white")
@@ -363,6 +365,16 @@ class TravelPlannerGUI(tk.Tk):
                 for n in neg:
                     self.results_text.insert(tk.END, f"   • {n}\n")
 
+            # Visa Information (extract from tips)
+            tips = TRAVEL_TIPS.get(d, [])
+            visa_info = [tip for tip in tips if tip.startswith("Visa:") or "passport" in tip.lower() or "visa" in tip.lower()]
+            if visa_info:
+                self.results_text.insert(tk.END, "  Visa & Entry Requirements:\n", "visa_header")
+                for visa_tip in visa_info:
+                    # Remove "Visa:" prefix if present for cleaner display
+                    display_tip = visa_tip.replace("Visa:", "").strip()
+                    self.results_text.insert(tk.END, f"   🛂 {display_tip}\n", "visa")
+
             self.results_text.insert(tk.END, "_"*60 + "\n")
 
         # Travel Tips
@@ -375,8 +387,19 @@ class TravelPlannerGUI(tk.Tk):
         for d in top_dests:
             self.results_text.insert(tk.END, f"\n{d}:\n", "subheader")
             tips = TRAVEL_TIPS.get(d, [])
-            for tip in tips:
+            # Filter out visa-related tips since they're shown above
+            general_tips = [tip for tip in tips if not (tip.startswith("Visa:") or ("passport" in tip.lower() and "valid" in tip.lower()))]
+            for tip in general_tips:
                 self.results_text.insert(tk.END, f"  💡 {tip}\n", "tip")
+
+        # Dedicated Visa Requirements Section
+        self.results_text.insert(tk.END, "\n\nVisa Requirements for Top Picks\n", "header")
+        for d in top_dests:
+            self.results_text.insert(tk.END, f"\n{d}:\n", "subheader")
+            tips = TRAVEL_TIPS.get(d, [])
+            visa_info = [tip for tip in tips if "visa" in tip.lower() or ("passport" in tip.lower() and "valid" in tip.lower())]
+            for visa_tip in visa_info:
+                self.results_text.insert(tk.END, f"  🛂 {visa_tip}\n", "visa")
 
     def update_charts(self):
         """
